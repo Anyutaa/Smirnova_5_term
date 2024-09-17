@@ -6,38 +6,13 @@
 
 using namespace std;
 
-const int daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-bool inputDate(int& year, int& month, int& day) {
-	while (true) {
-		cout << "Введите год: ";
-		year = GetCorrect(1, 9999);
-		cout << "Введите месяц: ";
-		month = GetCorrect(1, 12);
-		cout << "Введите день: ";
-		day = GetCorrect(1, 31);
-
-		if (month == 2 && (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {
-			if (day <= 29) {
-				return true;
-			}
-		}
-		else if (day <= daysInMonth[month - 1]) {
-			return true;
-		}
-
-		cout << "Неверная дата, попробуйте еще раз." << endl;
-	}
-}
-
-
 istream& operator >> (istream& in, Product& product)
 {
 	cout << "Название продукта:";
 	cin.ignore();
 	getline(cin, product.name_product);
 	cerr << product.name_product << endl;
-	cout << "Цена продукта (1.0, 21000.0):";
+	cout << "Цена продукта:";
 	product.price = GetCorrect(1.0, 21000.0);
 	int manufactureYear, manufactureMonth, manufactureDay;
 	int validUntilYear, validUntilMonth, validUntilDay;
@@ -74,7 +49,7 @@ istream& operator >> (istream& in, Product& product)
 		}
 	}
 
-	cout << "Количество продукта (1.0, 1000.0):";
+	cout << "Количество продукта:";
 	product.quantity_of_product = GetCorrect(1, 1000);
 	return in;
 }

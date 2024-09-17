@@ -6,6 +6,7 @@ using namespace std;
 template <typename T>
 T GetCorrect(T min, T max)
 {
+	cout << "Type number (" << min << "-" << max << "):";
 	T x;
 	while ((cin >> x).fail() || cin.peek() != '\n' || x<min || x>max)
 	{
@@ -18,3 +19,4 @@ T GetCorrect(T min, T max)
 	return x;
 }
 
+bool inputDate(int& year, int& month, int& day);
