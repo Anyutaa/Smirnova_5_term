@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "utils.h"
-#include <iostream> 
-#include <fstream>
+
 
 const int daysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 

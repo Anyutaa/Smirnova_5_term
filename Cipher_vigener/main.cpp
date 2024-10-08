@@ -2,137 +2,103 @@
 #include <string>
 #include <fstream>
 #include <Windows.h>
-#include <locale>
-#include <cwctype>
 
 using namespace std;
 
-// Структура для хранения названий файлов и ключа
-struct file_shifr {
-    wstring inputfile, outputfile;
-    wstring key;
+struct file_shifr
+{
+    string inputfile, outputfile;
+    string key;
 };
 
-// Проверка корректности ввода числа
+// Проверка на введенные данные
 template <typename T>
 T correctnumber(T min, T max) {
     T x;
-    while (((wcin >> x).fail()) || (wcin.peek() != L'\n') || (x < min) || (x > max)) {
-        wcout << L"Ошибка! Введите корректное число: >= " << min << L" и <= " << max << endl;
-        wcin.clear();
-        wcin.ignore(INT_MAX, L'\n');
+    while (((cin >> x).fail()) || (cin.peek() != '\n') || (x < min) || (x > max)) {
+        cout << "Ошибка! Введите корректное число: >= " << min << " и <= " << max << endl;
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
     }
     return x;
 }
 
-wchar_t VigenereShift(wchar_t ch, wchar_t key, bool encrypt = true) {
-    bool isRussianUpper = (ch >= L'А' && ch <= L'Я');
-    bool isRussianLower = (ch >= L'а' && ch <= L'я');
-    bool isEnglishUpper = (ch >= L'A' && ch <= L'Z');
-    bool isEnglishLower = (ch >= L'a' && ch <= L'z');
+void Shifr(int x)
+{
+    file_shifr f;
 
-    int alphabetSize = 0;
-    int chCode = 0;
-    int keyCode = 0;
-    int offset = 0;
-    int newCode = 0;
+    cout << "Введите название файла для ввода: ";
+    cin >> f.inputfile;
+    f.inputfile += ".txt"; 
 
-    if (isRussianUpper || isRussianLower) {
-        alphabetSize = 32;
-        chCode = isRussianUpper ? ch - L'А' : ch - L'а';
-        keyCode = (key >= L'А' && key <= L'Я') ? key - L'А' : key - L'а';
-        offset = encrypt ? keyCode : -keyCode;
-        newCode = (chCode + offset + alphabetSize) % alphabetSize;
-        if (newCode < 0) {
-            newCode += alphabetSize;
-        }
-        return isRussianUpper ? (newCode + L'А') : (newCode + L'а');
-    }
-    else if (isEnglishUpper || isEnglishLower) {
-        alphabetSize = 26;
-        chCode = isEnglishUpper ? ch - L'A' : ch - L'a';
-        keyCode = (key >= L'A' && key <= L'Z') ? key - L'A' : key - L'a';
-        offset = encrypt ? keyCode : -keyCode;
-        newCode = (chCode + offset + alphabetSize) % alphabetSize;
-        if (newCode < 0) {
-            newCode += alphabetSize;
-        }
-        return isEnglishUpper ? (newCode + L'A') : (newCode + L'a');
-    }
-    else {
-        return ch;  // Если символ не принадлежит алфавитам, возвращаем его без изменений
-    }
-}
+    cout << "Введите название файла для вывода: ";
+    cin >> f.outputfile;
+    f.outputfile += ".txt";  
 
+    cout << "Введите ключ для кодирования: ";
+    cin >> f.key;
 
-// Функция шифрования и дешифрования
-void Shifr(file_shifr& f, int x) {
-    wchar_t symbol;
+    unsigned char symbol;
     int i = 0;
+    unsigned char n;
+    unsigned char k;
+    const int ASCII_SIZE = 256;  
 
-    wcout << L"\nВведите название файла для ввода (без .txt): " << endl;
-    wcin >> f.inputfile;
-    wcout << L"Введите название файла для вывода (без .txt): " << endl;
-    wcin >> f.outputfile;
-    wcout << L"Введите ключ для кодирования: " << endl;
-    wcin >> f.key;
+    ifstream in(f.inputfile, ios::binary);
+    ofstream out(f.outputfile, ios::binary);
 
-    wifstream in(f.inputfile + L".txt");  // Открытие входного файла
-    wofstream out(f.outputfile + L".txt");  // Открытие выходного файла
-
-    locale loc("ru_RU.UTF-8");
-    in.imbue(loc);
-    out.imbue(loc);
-
-    if (!in.is_open() || !out.is_open()) {
-        wcout << L"\nОшибка открытия файла!" << endl;
+    if (!in.is_open()) {
+        cout << "\nОшибка открытия входного файла!" << endl;
+        return;
+    }
+    if (!out.is_open()) {
+        cout << "\nОшибка открытия выходного файла!" << endl;
         return;
     }
 
-    // Преобразование ключа в нижний регистр для упрощения вычислений
-    for (wchar_t& c : f.key) {
-        c = towlower(c);
+    cout << "Шифрование/дешифрование:\n";
+    while (in.get((char&)symbol)) {
+        k = static_cast<unsigned char>(f.key[i % f.key.size()]);
+
+        if (x == 1)  // Зашифровать
+            n = (symbol + k) % ASCII_SIZE;  
+        else         // Дешифровать
+            n = (symbol - k + ASCII_SIZE) % ASCII_SIZE;  
+
+        
+        i += 1;
+        out.put(n);
     }
 
-    // Процесс шифрования/дешифрования
-    while (in.get(symbol)) {
-        wchar_t k = f.key[i % f.key.size()];  // Символ ключа по модулю длины ключа
-        symbol = VigenereShift(symbol, k, (x == 1));  // true для шифрования, false для дешифрования
-        i++;
-
-        out.put(symbol);  // Запись в выходной файл
-    }
-
-    wcout << (x == 1 ? L"\nТекст зашифрован" : L"\nТекст расшифрован") << endl;
-
+    cout << "\nТекст обработан (зашифрован/расшифрован)." << endl;
     in.close();
     out.close();
 }
 
-int main() {
-    setlocale(LC_ALL, "ru_RU.UTF-8");
-    SetConsoleCP(65001);  // UTF-8 кодировка для ввода
-    SetConsoleOutputCP(65001);  // UTF-8 кодировка для вывода
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
 
-    file_shifr f;
     int option = -1;
-
-    while (option != 0) {
-        wcout << L"\nВыберите команду:\n 1. Зашифровать текст\n 2. Расшифровать текст\n 0. Выход" << endl;
+    while (option != 0)
+    {
+        cout << "\nВыберите команду:\n 1. Зашифровать текст\n 2. Расшифровать текст\n 0. Выход" << endl;
         option = correctnumber(0, 2);
 
-        switch (option) {
+        switch (option)
+        {
         case 1:
-            Shifr(f, 1);  // Шифрование
+            Shifr(1);  // Зашифровать
             break;
         case 2:
-            Shifr(f, 2);  // Дешифрование
+            Shifr(2);  // Дешифровать
             break;
         case 0:
-            wcout << L"Выход из программы." << endl;
             return 0;
         default:
-            wcout << L"Введите корректный номер (0-2)." << endl;
+            cout << "Введите корректный номер (0-2)" << endl;
             break;
         }
     }

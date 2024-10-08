@@ -1,12 +1,18 @@
+#include "pch.h"
 #include "Shop.h"
-#include <iostream> 
-#include <fstream>
 
 void Shop::Add_product() {
-	Product* pr = new Product();
+	shared_ptr<Product> pr = make_shared<Product>();
 	cout << "1. Добавить продукт" << endl;
-	cin >> *pr;
+	pr -> Input(cin);
 	shop.push_back(pr);
+}
+
+void Shop::Add_online_product() {
+	shared_ptr<Online_product> pr_online = make_shared<Online_product>();
+	cout << "2. Добавить онлайн продукт" << endl;
+	pr_online->Input(cin);
+	shop.push_back(pr_online);
 }
 void Shop::OutputProduct()
 {
@@ -15,8 +21,9 @@ void Shop::OutputProduct()
 		cout << "У вас нет продуктов" << endl;
 	}
 	else
-		for (Product* x : shop)
-			cout << *x << endl;
+		for (const auto& x : shop)
+			x->Output(cout);
+	cout << "\n";
 }
 void Shop::Writing_to_file_product()
 {
@@ -31,68 +38,47 @@ void Shop::Writing_to_file_product()
 		cin.ignore();
 		getline(cin, filename);
 		cerr << filename << endl;
-		ofstream fout((filename + ".txt"), ios::trunc);
+		ofstream fout((filename + ".dat"), ofstream::binary);
+		boost::archive::binary_oarchive ar(fout);
+		ar << shop;
+		
+		cout << "Информация о продуктах записана " << endl;
 
-		if (fout.is_open())
-		{
-			for (Product* x : shop)
-				fout << *x;
-			cout << "Информация о продуктах записана " << endl;
-
-			fout.close();
-		}
+		fout.close();
+		/*}*/
 	}
 }
 void Shop::Read_from_file_product()
 {
-	ifstream fin;
+	
 	string filename;
 	cout << "Введите название файла: ";
 	cin.ignore();
 	getline(cin, filename);
 	cerr << filename << endl;
-	fin.open(filename + ".txt");
-	if (!fin.is_open()) {
-		cerr << "Ошибка открытия файлов." << endl;
-		return;
-	}
-	Delete_product();
-	if (fin)
+	ifstream fin(filename + ".dat", ofstream::binary);
+
+	if (fin.is_open())
 	{
-		string name_of_product = "none";
-		bool foundProduct = false;
-		while (getline(fin, name_of_product))
-		{
-			if (name_of_product == "Продукт:")
-			{
-				Product* pr = new Product();  
-				fin >> *pr;
-				shop.push_back(pr);
-				foundProduct = true;
-			}
+		try{
+			boost::archive::binary_iarchive ar(fin);
+			ar >> shop;
 		}
-		if (!foundProduct)
-		{
-			cout << "Нет информации о продукте" << endl;
+		catch (const exception& e) {
+			cout << "Чтение прервано: " << e.what() << "." << endl;
+			Delete_product();
+			fin.close();
+			return;
 		}
-		else
-			return OutputProduct();
+	}
+	else
+	{
+		cout << "Не удалось открыть файл" + filename + ".dat." << endl;
 	}
 	fin.close();
 }
-Shop::~Shop() {
-	Delete_product();
-}
-
 void Shop::Delete_product() 
 {
-	if (shop.empty()) {
-		cout << "Нет продуктов для удаления" << endl;
-		return;
-	}
-	for (Product* p : shop) {
-		delete p;
-	}
 	shop.clear();
 	cout << "Все продукты удалены" << endl;
 }

@@ -1,17 +1,9 @@
-#include <iostream> 
-#include <fstream>
-#include <string>
-#include <vector>
-#include <set>
-#include <algorithm>
+#include "pch.h"
 #include "Product.h"
 #include "Shop.h"
 #include "utils.h"
-#include <windows.h>
 
 using namespace std;
-
-
 
 int main()
 {
@@ -22,14 +14,15 @@ int main()
 	{
 		cout << "\nВыберите вариант из меню :"
 			<< "\n1. Добавить продукт"
-			<< "\n2. Посмотреть все продукты"
-			<< "\n3. Удалить все продукты"
-			<< "\n4. Записать в файл"
-			<< "\n5. Прочитать из файла"
-			<< "\n6. Выход"
+			<< "\n2. Добавить онлайн продукт"
+			<< "\n3. Посмотреть все продукты"
+			<< "\n4. Удалить все продукты"
+			<< "\n5. Записать в файл"
+			<< "\n6. Прочитать из файла"
+			<< "\n0. Выход"
 			<< "\nВыберите действие ";
 		int vibor = -1;
-		vibor = GetCorrect(1, 6);
+		vibor = GetCorrect(0, 6);
 		switch (vibor)
 		{
 		case 1:
@@ -39,32 +32,37 @@ int main()
 		}
 		case 2:
 		{
-			cout << "2. Посмотреть все продукты " << endl;
-			myshop.OutputProduct();
+			myshop.Add_online_product();
 			break;
 		}
 		case 3:
 		{
-			cout << "3. Удалить все продукты" << endl;
-			myshop.Delete_product();
+			cout << "3. Посмотреть все продукты " << endl;
+			myshop.OutputProduct();
 			break;
 		}
 		case 4:
 		{
-			cout << "4. Записать в файл" << endl;
-			myshop.Writing_to_file_product();
+			cout << "4. Удалить все продукты" << endl;
+			myshop.Delete_product();
 			break;
 		}
 		case 5:
 		{
-			cout << "5. Прочитать из файла" << endl;
+			cout << "5. Записать в файл" << endl;
+			myshop.Writing_to_file_product();
+			break;
+		}
+		case 6:
+		{
+			cout << "6. Прочитать из файла" << endl;
 			myshop.Read_from_file_product();
 			break;
 		}
 
-		case 6:
+		case 0:
 		{
-			cout << "6. Выход" << endl;
+			cout << "0. Выход" << endl;
 			return 0;
 		}
 		}

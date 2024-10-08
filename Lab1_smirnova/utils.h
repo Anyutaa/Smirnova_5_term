@@ -1,12 +1,12 @@
 #pragma once
-#include <iostream> 
-#include <regex>
+#include "pch.h"
+
 using namespace std;
 
 template <typename T>
 T GetCorrect(T min, T max)
 {
-	cout << "Type number (" << min << "-" << max << "):";
+	cout << " (" << min << "-" << max << "):";
 	T x;
 	while ((cin >> x).fail() || cin.peek() != '\n' || x<min || x>max)
 	{
